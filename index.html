@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  cursor: pointer;
+}
+
+.node:hover {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node--leaf {
+  fill: white;
+}
+
+.label {
+  font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+}
+
+.label,
+.node--root,
+.node--leaf
+<!--{-->
+<!--  pointer-events: none;-->
+<!--}-->
+
+text{
+    pointer-events:none;
+}
+
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script src="./js/search_transcript.js"></script>
+<link rel="stylesheet" type="text/css" href="./js/classic.css">
+
+<div style="width: 1600px">
+    <div style="width: 100%; float: left" class="container">
+        <div id="vis_circle_pack">
+            <div id="select_word" style = "float:left;position: absolute">
+                <b id="tip0">Select a word</b>
+                <p></p>
+                <input id='input_word' type = "text" class = "words" placeholder="Please type a word" style = "float:left;top">
+                <button id='search' onclick="search()" style = "float:left;top" >search</button>
+                <button id='reset' onclick="reset()" style = "float:left;top">reset</button>
+                <p></p>
+                <p></p>
+                <b id="tip1">Select a topic</b>
+                <p></p>
+                <p></p>
+                <div class="g-overview" >
+                    <a onclick="chartByLabel(0)" class="button3" style="background-color: #5470c6">Safety</a>
+                    <p></p>
+                    <a onclick="chartByLabel(1)" class="button3" style="background-color: #73c0de">Economy</a>
+                    <p></p>
+                    <a onclick="chartByLabel(2)" class="button3" style="background-color: #fac858">Economy</a>
+                    <p></p>
+                    <a onclick="chartByLabel(3)" class="button3" style="background-color: #3ba272">Covid</a>
+                    <p></p>
+                    <a onclick="chartByLabel(4)" class="button3" style="background-color: #ee6666">Climate</a>
+                    <p></p>
+                    <a onclick="chartByLabel(5)" class="button3" style="background-color: #91cc75">Health</a>
+                </div>
+            </div>
+
+            <div id="select_time" style = "right:80px;top;position: absolute">
+                <b id="tip2">Select a debate paragraph</b>
+                <p></p>
+            </div>
+            <div id="view_connect" style = "right:300px;top;position: absolute">
+                <button id='view' onclick="view()" style = "float:left;top" >view line</button>
+                <p></p>
+            </div>
+        </div>
+        <div id="vis_connect"></div>
+
+    </div>
+
+    <div class="theme_classic" style="width: 90%;float: left">
+        <section class="theme_light">
+            <h1 class="type_heading"><mark class="type_mark">Search</mark></h1>
+            <div class="form_field">
+                <div class="form_addon-group">
+                    <select id="categ-select" onchange="getOption1()">
+                        <option value="Transcript">Transcript</option>
+                        <option value="Tweets">Tweets</option>
+                    </select>
+                    <select id="text-select" onchange="getOption()">
+                    </select>
+                    <input type="text" class="input_text" id="simplesearchinput" placeholder="Enter search query" name="searchterm">
+                </div>
+            </div>
+            <p id="searchresults"></p>
+        </section>
+        <section class="theme_dark">
+            <!--      <span class="output"></span>-->
+            <!--      <button onclick="getOption()">-->
+            <!--        Check option-->
+            <!--      </button>-->
+            <div class="content_wrapper">
+                <div class="results_wrapper">
+                    <div class="table_container"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script type="text/javascript" src="./js/simplesearch.js"></script>
+<script type="text/javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        var searchresults = document.querySelector("#searchresults");
+
+        var success = function(results) {
+            if (searchresults) {
+                searchresults.innerHTML = "Results delivered in " + results.time + " ms";
+            }
+        };
+
+        var fail = function(error) {
+            if (searchresults) {
+                searchresults.innerHTML = "Search failed";
+            }
+        };
+
+        var before = function() {
+            searchresults.innerHTML = "Searching...";
+        };
+
+        var simplesearch = new SimpleSearch("http://sss-got.mybluemix.net",
+            { onSuccess: success, onFail: fail, onBefore: before },
+            { inputField: "#simplesearchinput",
+                searchButton: true,
+                resultsTable: ".table_container",
+                facetsList: "#resultfacets" },
+            { deepLinking: true });
+    });
+</script>
+<script src="./js/data.js"></script>
+<script src="./js/force.js"></script>
+
+<script>
+
+    function reset(){
+        timeRange = ['2020-10-08 09:00','2020-10-08 10:30'];
+        document.getElementById("input_word").value = ''
+        value = ''
+<!--        svg.select(".brushY").call(brushY.clear())-->
+<!--        brushY.clear-->
+        genData()
+    }
+    function search(){
+        value = document.getElementById("input_word").value
+<!--        console.log(value)-->
+        wordSelect()
+    }
+    function view(){
+        if(document.getElementById("view").innerText == 'view line'){
+            vis = 'visible'
+            d3.selectAll("#line").style('visibility',vis)
+            document.getElementById("view").innerText = 'hide line'
+        }
+        else{
+            vis = 'hidden'
+            d3.selectAll("#line").style('visibility',vis)
+            document.getElementById("view").innerText = 'view line'
+        }
+    }
+</script>
